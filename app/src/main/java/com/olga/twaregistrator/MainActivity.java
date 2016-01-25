@@ -49,16 +49,15 @@ public class MainActivity extends AppCompatActivity
 
         adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null,
                 new String[]{
-                        //RegisterDatabaseContract.DB._ID,
-                        RegisterDatabaseContract.DB.COLUMN_NUMBER
+                          RegisterDatabaseContract.DB.COLUMN_NUMBER
                 },
                 new int[]{
-                        //android.R.id.text2,
                         android.R.id.text1
                 }, 0);
 
         ListView listView = (ListView)findViewById(R.id.number_syncadapter_listview);
         listView.setAdapter(adapter);
+
 
         LoaderManager loaderManager = getLoaderManager();
         loaderManager.initLoader(LOADER_ID, null, this);
@@ -142,8 +141,6 @@ public class MainActivity extends AppCompatActivity
 
 
                 TextView nameTW = (TextView) findViewById(R.id.nameTextView);
-                ListView receivednumberTW = (ListView) findViewById(R.id.number_syncadapter_listview);
-
                 if (sitsAmount == null || sitsAmount.isEmpty()) {
                     sitsAmount = "1";
                 }
@@ -153,10 +150,11 @@ public class MainActivity extends AppCompatActivity
                 String choosenDate = bookingDate.getText().toString();
                 EditText bookingTime = (EditText) findViewById(R.id.timeText);
                 String choosenTime = bookingTime.getText().toString();
-/*                if (!bookingDate.getText().toString().isEmpty()) {
-                    choosenDate = sdf.format(new Date(bookingDate.getText().toString()));
-                }*/
-                String number = receivednumberTW.getItemAtPosition(1).getClass().toString();
+                ListView receivednumber = (ListView) findViewById(R.id.number_syncadapter_listview);
+
+
+                Cursor mycursor = (Cursor) receivednumber.getItemAtPosition(0);
+                String number =  mycursor.getString(1);
 
                 String booking = "Name: " + nameTW.getText().toString() +
                         "   Phone number: " + number +
@@ -168,6 +166,7 @@ public class MainActivity extends AppCompatActivity
                 if (!nameTW.getText().toString().isEmpty() && !nameTW.getText().toString().equals(""))
                     if (!number.isEmpty())
                         if (!sitsAmount.isEmpty()) {
+                            Log.d(TAG, "Registration email to be send: " + booking);
                             sendEmail(bookingemail, "Booking details", booking);
                             Log.d(TAG, "Registration email was send: " + booking);
 

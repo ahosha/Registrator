@@ -19,10 +19,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".RegistratorService"
-            android:exported="false"></service>
-
         <provider
             android:name=".RegisterContractProvider"
             android:authorities="com.olga.twaregistrator.registercontract.provider"
