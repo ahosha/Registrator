@@ -7,5 +7,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
-
+    <style name="ReqistratorStyle">
+        <item name="android:textColor">#FF255F26</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>
