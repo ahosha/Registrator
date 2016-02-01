@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
     private TextView nameTW = null;
     private TimePickerDialog mTimePicker;
 
-    private String bookingemail = "maxim.langman@gmail.com";
+    private String bookingemail = "fedia.bar.seven@gmail.com";
 
     Button rbutton = null;
     Spinner spinner = null;
