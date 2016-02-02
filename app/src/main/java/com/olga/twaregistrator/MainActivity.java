@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity
     private String sitsAmount;
 
     private DatePickerDialog fromDatePickerDialog;
-    private TimePickerDialog fromTimePickerDialog;
     private SimpleDateFormat dateFormatter;
     private EditText fromDateEtxt = null;
     private EditText fromTimeEtxt = null;
@@ -87,6 +86,8 @@ public class MainActivity extends AppCompatActivity
 
         PopulateNumberAdapter();
 
+        nameTW.requestFocus();
+
         LoaderManager loaderManager = getLoaderManager();
         loaderManager.initLoader(LOADER_ID, null, this);
 
@@ -112,7 +113,7 @@ public class MainActivity extends AppCompatActivity
         dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
         Calendar newCalendar = Calendar.getInstance();
         fromDateEtxt.setInputType(InputType.TYPE_NULL);
-        fromDateEtxt.requestFocus();
+        //fromDateEtxt.requestFocus();
         fromDateEtxt.setOnClickListener(this);
         fromDatePickerDialog = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
 
@@ -124,18 +125,19 @@ public class MainActivity extends AppCompatActivity
 
         },newCalendar.get(Calendar.YEAR), newCalendar.get(Calendar.MONTH), newCalendar.get(Calendar.DAY_OF_MONTH));
 
-        int hour = newCalendar.get(Calendar.HOUR_OF_DAY);
-        int minute = newCalendar.get(Calendar.MINUTE);
+/*        int hour = newCalendar.get(Calendar.HOUR_OF_DAY);
+        int minute = newCalendar.get(Calendar.MINUTE);*/
         fromTimeEtxt.setInputType(InputType.TYPE_NULL);
-        fromTimeEtxt.requestFocus();
+        //fromTimeEtxt.requestFocus();
         fromTimeEtxt.setOnClickListener(this);
         mTimePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                fromTimeEtxt.setText( selectedHour + ":" + selectedMinute);
-            }
-        }, hour, minute, true);
+                                                        @Override
+                                                        public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
+                                                            fromTimeEtxt.setText( selectedHour + ":" + selectedMinute);
+                                                        }          //}, hour, minute, true);
+                                                    }, 21, 30, true);
         mTimePicker.setTitle("Select Time");
+
 
     }
 
@@ -213,19 +215,26 @@ public class MainActivity extends AppCompatActivity
                 String choosenTime = fromTimeEtxt.getText().toString();
                 Cursor mycursor = (Cursor) listView.getItemAtPosition(0);
                 String number = mycursor.getString(1);
+                String name= nameTW.getText().toString();
 
-                String booking = "Name: " + nameTW.getText().toString() +
-                        "   Phone number: " + number +
-                        "   Number of sits: " + sitsAmount +
-                        "   Booking date: " + choosenDate +
-                        "   Booking time: " + choosenTime + ";";
 
+
+                String booking = "<html><body>" +
+                "<a>Name: </a> <b>" + name + "</b> <br />" +
+                "<a>Phone: </a> <b>" + number + "</b> <br/>" +
+                "<a>Date: </a> <b>" + choosenDate + "</b> <br />" +
+                "<a>Time: </a> <b>" + choosenTime + "</b> <br />" +
+                "<a>Seats: </a> <b>" + sitsAmount + "</b> <br />" +
+                "</body>" +
+                "</html>" ;
+
+                String subject = "PHONE BOOKING: " + choosenDate + ", " + sitsAmount +" seats, " + name;
 
                 if (!nameTW.getText().toString().isEmpty() && !nameTW.getText().toString().equals(""))
                     if (!number.isEmpty())
                         if (!sitsAmount.isEmpty()) {
                             Log.d(TAG, "Registration email to be send: " + booking);
-                            sendEmail(bookingemail, "Booking details", booking);
+                            sendEmail(bookingemail, subject, booking);
                             Log.d(TAG, "Registration email was send: " + booking);
                         }
             }
