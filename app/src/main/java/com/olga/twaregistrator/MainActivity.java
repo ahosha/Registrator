@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -86,7 +87,26 @@ public class MainActivity extends AppCompatActivity
 
         PopulateNumberAdapter();
 
-        nameTW.requestFocus();
+        //nameTW.requestFocus();
+        //editText = (EditText)findViewById(R.id.myTextViewId);
+        //nameTW.requestFocus();
+        //nameTW.setInputType(0);
+        nameTW.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (v == nameTW) {
+                    if (hasFocus) {
+                        Log.d(TAG, "nameTW hasFocus" );
+                        // Open keyboard
+                        ((InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(nameTW, InputMethodManager.SHOW_FORCED);
+                    } else {
+                        Log.d(TAG, "nameTW has NO Focus" );
+                        // Close keyboard
+                        ((InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(nameTW.getWindowToken(), 0);
+                    }
+                }
+            }
+        });
 
         LoaderManager loaderManager = getLoaderManager();
         loaderManager.initLoader(LOADER_ID, null, this);
@@ -219,14 +239,22 @@ public class MainActivity extends AppCompatActivity
 
 
 
-                String booking = "<html><body>" +
-                "<a>Name: </a> <b>" + name + "</b> <br />" +
-                "<a>Phone: </a> <b>" + number + "</b> <br/>" +
-                "<a>Date: </a> <b>" + choosenDate + "</b> <br />" +
-                "<a>Time: </a> <b>" + choosenTime + "</b> <br />" +
-                "<a>Seats: </a> <b>" + sitsAmount + "</b> <br />" +
-                "</body>" +
-                "</html>" ;
+                String booking =
+                            " Name:" + name +
+                            " | Phone:" + number +
+                            " | Date:" + choosenDate +
+                            " | Time:" + choosenTime +
+                            " | Seats:" + sitsAmount ;
+
+                /*String booking = "<html><body>" +
+                        "<a>Name: </a> <b>" + name + "</b> <br />" +
+                        "<a>Phone: </a> <b>" + number + "</b> <br/>" +
+                        "<a>Date: </a> <b>" + choosenDate + "</b> <br />" +
+                        "<a>Time: </a> <b>" + choosenTime + "</b> <br />" +
+                        "<a>Seats: </a> <b>" + sitsAmount + "</b> <br />" +
+                        "</body>" +
+                        "</html>" ;
+                */
 
                 String subject = "PHONE BOOKING: " + choosenDate + ", " + sitsAmount +" seats, " + name;
 
