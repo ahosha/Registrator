@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity
                             View.OnClickListener {
 
     private BroadcastReceiver receiver;
+    private IntentFilter numberfilter ;
     private TextView numberdisplay;
     private static final int LOADER_ID = 1;
     SimpleCursorAdapter adapter;
@@ -58,10 +59,11 @@ public class MainActivity extends AppCompatActivity
     Button rbutton = null;
     Spinner spinner = null;
     ListView listView = null;
+    boolean isNumberReceiverRegistered = false;
 
     @Override
     public void onClick(View view) {
-        Log.d(TAG, "viewd: " + view);
+        Log.d(TAG, "view: " + view);
 
         if(view == fromDateEtxt) {
             fromDatePickerDialog.show();
@@ -87,20 +89,17 @@ public class MainActivity extends AppCompatActivity
 
         PopulateNumberAdapter();
 
-        //nameTW.requestFocus();
-        //editText = (EditText)findViewById(R.id.myTextViewId);
-        //nameTW.requestFocus();
-        //nameTW.setInputType(0);
+        nameTW.setText("");
         nameTW.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (v == nameTW) {
                     if (hasFocus) {
-                        Log.d(TAG, "nameTW hasFocus" );
+                        Log.d(TAG, "nameTW hasFocus");
                         // Open keyboard
                         ((InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE)).showSoftInput(nameTW, InputMethodManager.SHOW_FORCED);
                     } else {
-                        Log.d(TAG, "nameTW has NO Focus" );
+                        Log.d(TAG, "nameTW has NO Focus");
                         // Close keyboard
                         ((InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(nameTW.getWindowToken(), 0);
                     }
@@ -108,12 +107,16 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        fromDateEtxt.setFocusable(true);
+
         LoaderManager loaderManager = getLoaderManager();
         loaderManager.initLoader(LOADER_ID, null, this);
 
-        IntentFilter filter = IntentFilter.create(IncommingCallReceiver.ACTION_BROADCAST_NUMBER_RECEIVED, "*/*");
+        numberfilter = IntentFilter.create(ContentProviderManipulator.ACTION_BROADCAST_NUMBER_RECEIVED, "*/*");
         receiver = new NumberReceivedBroadcastReceiver();
-        registerReceiver(receiver, filter);
+        registerReceiver(receiver, numberfilter);
+        isNumberReceiverRegistered = true;
+
     }
 
     private void PopulateNumberAdapter() {
@@ -128,8 +131,7 @@ public class MainActivity extends AppCompatActivity
         listView.setAdapter(adapter);
     }
 
-    private void PopulateDateTimeDialog()
-    {
+    private void PopulateDateTimeDialog() {
         dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
         Calendar newCalendar = Calendar.getInstance();
         fromDateEtxt.setInputType(InputType.TYPE_NULL);
@@ -161,48 +163,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Log.d(TAG, "onCreateLoader id:" + String.valueOf(id));
-        return new CursorLoader(this, RegisterDatabaseContract.CONTENT_URI, null, null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Log.d(TAG, "onLoadFinished " + data.getCount());
-        adapter.swapCursor(data);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        Log.d(TAG, "onLoaderReset " );
-        adapter.swapCursor(null);
-    }
-
-    protected void onResume() {
-        super.onResume();
-
-        IntentFilter filter = IntentFilter.create(IncommingCallReceiver.ACTION_BROADCAST_NUMBER_RECEIVED, "*/*");
-        receiver = new NumberReceivedBroadcastReceiver();
-
-        registerReceiver(receiver, filter);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        unregisterReceiver(receiver);
-    }
-
-    public class NumberReceivedBroadcastReceiver extends BroadcastReceiver{
-        private final String TAG = NumberReceivedBroadcastReceiver.class.getSimpleName();
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "NumberReceivedBroadcastReceiver onReceive");
-            getLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
-        }
-    }
-
     private void PopulateSitsSpinner() {
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sitslistArray, android.R.layout.simple_spinner_item);
@@ -224,8 +184,7 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    private void PopulateActionButton ()
-    {
+    private void PopulateActionButton ()  {
         rbutton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (sitsAmount == null || sitsAmount.isEmpty()) {
@@ -240,11 +199,11 @@ public class MainActivity extends AppCompatActivity
 
 
                 String booking =
-                            " Name:" + name +
-                            " | Phone:" + number +
-                            " | Date:" + choosenDate +
-                            " | Time:" + choosenTime +
-                            " | Seats:" + sitsAmount ;
+                        " Name:" + name +
+                                " | Phone:" + number +
+                                " | Date:" + choosenDate +
+                                " | Time:" + choosenTime +
+                                " | Seats:" + sitsAmount ;
 
                 /*String booking = "<html><body>" +
                         "<a>Name: </a> <b>" + name + "</b> <br />" +
@@ -269,6 +228,49 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Log.d(TAG, "onCreateLoader id:" + String.valueOf(id));
+        return new CursorLoader(this, RegisterDatabaseContract.CONTENT_URI, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.d(TAG, "onLoadFinished " + data.getCount());
+        adapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        Log.d(TAG, "onLoaderReset ");
+        adapter.swapCursor(null);
+    }
+
+    protected void onResume() {
+        super.onResume();
+
+        registerReceiver(receiver, numberfilter);
+        isNumberReceiverRegistered = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (isNumberReceiverRegistered) {
+            unregisterReceiver(receiver);
+            isNumberReceiverRegistered = false;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (isNumberReceiverRegistered) {
+            unregisterReceiver(receiver);
+            isNumberReceiverRegistered = false;
+        }
+    }
+
     private void sendEmail(String email, String subject, String body) {
 
         Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
@@ -284,14 +286,24 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private void FindAllControls()
-    {
+    private void FindAllControls() {
         rbutton = (Button) findViewById(R.id.regbutton);
         spinner = (Spinner) findViewById(R.id.sits_spinner);
         listView = (ListView)findViewById(R.id.number_syncadapter_listview);
         fromDateEtxt = (EditText) findViewById(R.id.etxt_fromdate);
         fromTimeEtxt = (EditText) findViewById(R.id.etxt_fromtime);
         nameTW = (TextView) findViewById(R.id.nameTextView);
+    }
+
+    public class NumberReceivedBroadcastReceiver extends BroadcastReceiver {
+
+        private final String TAG = NumberReceivedBroadcastReceiver.class.getSimpleName();
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "NumberReceivedBroadcastReceiver onReceive start Load");
+            getLoaderManager().restartLoader(LOADER_ID, null, MainActivity.this);
+        }
+
     }
 
 

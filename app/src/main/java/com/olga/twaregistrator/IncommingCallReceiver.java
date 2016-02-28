@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.olga.twaregistrator.RegisterDatabaseContract;
@@ -24,10 +25,12 @@ public class IncommingCallReceiver extends BroadcastReceiver
 
     //Context mContext;
     private final String TAG = IncommingCallReceiver.class.getSimpleName();
+
+    /*
     //final String FileName = "ReceivedNumber.txt";
     ContentResolver resolver;
 
-    public static final String ACTION_BROADCAST_NUMBER_RECEIVED = "com.olga.twaregistrator.number.received.broadcast";
+    public static final String ACTION_BROADCAST_NUMBER_RECEIVED = "com.olga.twaregistrator.number.received.broadcast";*/
 
 
 
@@ -43,18 +46,32 @@ public class IncommingCallReceiver extends BroadcastReceiver
             String incomingNumber = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
             msg += ". Incoming number is " + incomingNumber;
 
-            PutData2ContentProvider(context, incomingNumber);
-/*            if(MainActivity.getInstace() != null)
-                Toast.makeText(mContext, "updateUI - " + incomingNumber, Toast.LENGTH_LONG).show();
-            MainActivity.getInstace().updateUI(incomingNumber);*/
-        }
+            ContentProviderManipulator manipulator = new ContentProviderManipulator();
+            manipulator.PutData2ContentProvider(context, incomingNumber);
 
+        }
+/*        else
+        {
+            Log.d(TAG, "OugoingCallReceiver -> Outcoming");
+
+            String phoneNumber = intent.getStringExtra(Intent.EXTRA_PHONE_NUMBER);
+            if (!TextUtils.isEmpty(phoneNumber) ) {
+                Log.d(TAG, "OugoingCallReceiver -> Outcoming: " + phoneNumber);
+
+                ContentProviderManipulator manipulator = new ContentProviderManipulator();
+                manipulator.PutData2ContentProvider(context, phoneNumber);
+
+                msg += ". Outgoing number is " + phoneNumber;
+            }
+        }*/
 
         //Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
         Log.d(TAG, "IncommingCallReceiver -> Received Incoming: " + msg + ":");
 
 
     }
+
+/*
 
     private void PutData2ContentProvider(Context context, String incomingNumber) {
 
@@ -74,10 +91,13 @@ public class IncommingCallReceiver extends BroadcastReceiver
     private void sendSyncedBroadcast(Context context) {
         Log.d(TAG, "sendSyncedBroadcast : " + ACTION_BROADCAST_NUMBER_RECEIVED + ":");
         Intent intent = new Intent(ACTION_BROADCAST_NUMBER_RECEIVED);
-        intent.setType("*/*");
+        intent.setType("**
+
+/*");
         context.sendBroadcast(intent);
         Log.d(TAG, "sendSyncedBroadcast done : " + ACTION_BROADCAST_NUMBER_RECEIVED + ":");
     }
+*/
 
 
 
